@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"lab1/internal/hub"
 	"lab1/internal/node"
 )
 
@@ -9,6 +10,9 @@ type Graph struct {
 	VertexMap    map[*node.Node][]*node.Node // Список смежности
 	VertexList   []*node.Node
 	VertexByName map[string]*node.Node
+
+	Hubs []*hub.Hub
+
 	Length       int
 	AreaX, AreaY int
 }
@@ -21,6 +25,7 @@ func NewGraph(N int) *Graph {
 		VertexByName: make(map[string]*node.Node),
 		AreaX:        100,
 		AreaY:        100,
+		Hubs:         make([]*hub.Hub, 0),
 	}
 }
 

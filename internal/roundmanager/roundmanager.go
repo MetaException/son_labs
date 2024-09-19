@@ -51,10 +51,6 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 	for _, sender := range r.G.VertexList {
 
-		if sender.IsHub {
-			continue
-		}
-
 		recievers := r.G.VertexMap[sender]
 		for i := range recievers {
 			recievers[i] = sender.Send(recievers[i], sender.FpR)
@@ -69,10 +65,6 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 func (r *RoundManager) PerformMoving() {
 	for _, node := range r.G.VertexList {
-		if node.IsHub {
-			continue
-		}
-
 		node.RandomMove(float64(r.G.AreaX), float64(r.G.AreaY))
 	}
 }
@@ -86,9 +78,6 @@ func (r *RoundManager) ClearAllDeadFramesHistory() {
 func (r *RoundManager) CheckFinished() bool {
 
 	for _, node := range r.G.VertexList {
-		if node.IsHub {
-			continue
-		}
 		if len(node.Frames) != 0 {
 			return false
 		}

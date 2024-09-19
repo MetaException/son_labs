@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"lab1/internal/hub"
 	"lab1/internal/network"
 	"lab1/internal/node"
 	"lab1/internal/roundmanager"
@@ -19,13 +20,13 @@ func main() {
 	fmt.Printf("\nСоздание вершин...\n\n")
 	var lastVertex node.Node
 	for i := range g.Length { // Создаём вершины
-		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i+1), false)
+		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i + 1))
 		g.AddNode(vertex)
 
 		lastVertex = *vertex
 	}
 
-	hub := lastVertex.GenerateRandomVertexByVertex("hub", true)
+	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.BaseNode)
 	g.AddNode(hub)
 
 	fmt.Printf("\nЗаполнение графа...\n\n")
