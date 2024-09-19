@@ -1,12 +1,20 @@
-package node
+package vertex
 
-func (s Node) Send(dist *Node, count int) *Node {
-
-	if count > len(s.Frames) {
-		count = len(s.Frames)
+func (v *Vertex) DestroyFrames(count int) {
+	if count > len(v.Frames) {
+		count = len(v.Frames)
 	}
 
-	framesToSend := s.Frames[:count]
+	v.Frames = v.Frames[count:]
+}
+
+func (v Vertex) Send(dist *Vertex, count int) *Vertex {
+
+	if count > len(v.Frames) {
+		count = len(v.Frames)
+	}
+
+	framesToSend := v.Frames[:count]
 
 	//fmt.Printf("%s %v sends %v to %s %v | ", s.Name, s.Frames, framesToSend, dist.Name, dist.Frames)
 
@@ -24,18 +32,10 @@ func (s Node) Send(dist *Node, count int) *Node {
 	return dist
 }
 
-func (s *Node) DestroyFrames(count int) {
-	if count > len(s.Frames) {
-		count = len(s.Frames)
-	}
-
-	s.Frames = s.Frames[count:]
-}
-
-func (node *Node) ClearDeadFramesHistory() {
-	for k := range node.FramesIdHistory {
-		if node.FramesIdHistory[k] <= 0 {
-			delete(node.FramesIdHistory, k)
+func (v *Vertex) ClearDeadFramesHistory() {
+	for k := range v.FramesIdHistory {
+		if v.FramesIdHistory[k] <= 0 {
+			delete(v.FramesIdHistory, k)
 		}
 	}
 }

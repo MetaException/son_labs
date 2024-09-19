@@ -2,7 +2,7 @@ package roundmanager
 
 import (
 	"lab1/internal/network"
-	"lab1/internal/node"
+	"lab1/internal/network/vertex"
 )
 
 type RoundManager struct {
@@ -40,7 +40,7 @@ func (r *RoundManager) PerformRounds() {
 		r.PerformRound(i)
 		r.PerformMoving()
 
-		r.G.VertexMap = make(map[*node.Node][]*node.Node)
+		r.G.VertexMap = make(map[*vertex.Vertex][]*vertex.Vertex)
 		r.G.FillGraph()
 
 		i++
@@ -49,11 +49,11 @@ func (r *RoundManager) PerformRounds() {
 
 func (r *RoundManager) PerformRound(roundNumber int) {
 
-	for _, sender := range r.G.VertexList {
+	for _, sender := range r.G.Nodes {
 
-		recievers := r.G.VertexMap[sender]
+		recievers := r.G.VertexMap[&sender.Vertex]
 		for i := range recievers {
-			recievers[i] = sender.Send(recievers[i], sender.FpR)
+			recievers[i] = sender.Vertex.Send(recievers[i], sender.FpR)
 		}
 
 		sender.DestroyFrames(sender.FpR)
@@ -64,7 +64,7 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 }
 
 func (r *RoundManager) PerformMoving() {
-	for _, node := range r.G.VertexList {
+	for _, node := range r.G.Nodes {
 		node.RandomMove(float64(r.G.AreaX), float64(r.G.AreaY))
 	}
 }
@@ -77,7 +77,7 @@ func (r *RoundManager) ClearAllDeadFramesHistory() {
 
 func (r *RoundManager) CheckFinished() bool {
 
-	for _, node := range r.G.VertexList {
+	for _, node := range r.G.Nodes {
 		if len(node.Frames) != 0 {
 			return false
 		}

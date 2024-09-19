@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"lab1/internal/hub"
+	roundmanager "lab1/internal"
 	"lab1/internal/network"
-	"lab1/internal/node"
-	"lab1/internal/roundmanager"
+	"lab1/internal/network/vertex/hub"
+	"lab1/internal/network/vertex/node"
 	"strconv"
 )
 
@@ -26,8 +26,8 @@ func main() {
 		lastVertex = *vertex
 	}
 
-	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.BaseNode)
-	g.AddNode(hub)
+	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.Vertex)
+	g.AddHub(hub)
 
 	fmt.Printf("\nЗаполнение графа...\n\n")
 	g.FillGraph()

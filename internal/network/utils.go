@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"lab1/internal/node"
+	"lab1/internal/network/vertex"
 )
 
 func (g *Graph) PrintInfo(roundNumber int) {
@@ -19,10 +19,21 @@ func (g *Graph) CheckConnectivity() bool {
 	}
 
 	isFirst := false
-	var first *node.Node
+	var first *vertex.Vertex
 
-	hashset := make(map[*node.Node]struct{})
-	for _, node := range g.VertexList {
+	hashset := make(map[*vertex.Vertex]struct{})
+
+	vertexList := make([]*vertex.Vertex, 0)
+
+	for _, node := range g.Nodes {
+		vertexList = append(vertexList, &node.Vertex)
+	}
+
+	for _, hub := range g.Hubs {
+		vertexList = append(vertexList, &hub.Vertex)
+	}
+
+	for _, node := range vertexList {
 		if !isFirst {
 			first = node
 			isFirst = true
@@ -30,7 +41,7 @@ func (g *Graph) CheckConnectivity() bool {
 		hashset[node] = struct{}{}
 	}
 
-	queue := []*node.Node{first}
+	queue := []*vertex.Vertex{first}
 	delete(hashset, first)
 
 	for len(queue) > 0 {

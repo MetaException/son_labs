@@ -2,16 +2,18 @@ package network
 
 import (
 	"fmt"
-	"lab1/internal/hub"
-	"lab1/internal/node"
+	"lab1/internal/network/vertex"
+	"lab1/internal/network/vertex/hub"
+	"lab1/internal/network/vertex/node"
 )
 
 type Graph struct {
-	VertexMap    map[*node.Node][]*node.Node // Список смежности
-	VertexList   []*node.Node
-	VertexByName map[string]*node.Node
+	VertexMap    map[*vertex.Vertex][]*vertex.Vertex // Список смежности
+	VertexByName map[string]*vertex.Vertex           // Доступ к вершинам по имени
+	VertexList   []*vertex.Vertex                    // Все вершины графа сети
 
-	Hubs []*hub.Hub
+	Nodes map[string]*node.Node
+	Hubs  map[string]*hub.Hub
 
 	Length       int
 	AreaX, AreaY int
@@ -19,33 +21,42 @@ type Graph struct {
 
 func NewGraph(N int) *Graph {
 	return &Graph{
-		VertexMap:    make(map[*node.Node][]*node.Node, N),
-		VertexList:   make([]*node.Node, 0),
+		VertexMap:    make(map[*vertex.Vertex][]*vertex.Vertex, N),
+		Nodes:        make(map[string]*node.Node, 0),
 		Length:       N,
-		VertexByName: make(map[string]*node.Node),
+		VertexByName: make(map[string]*vertex.Vertex),
 		AreaX:        100,
 		AreaY:        100,
-		Hubs:         make([]*hub.Hub, 0),
+		Hubs:         make(map[string]*hub.Hub),
+		VertexList:   make([]*vertex.Vertex, 0),
+	}
+}
+
+func (g *Graph) AddHub(hubToAdd *hub.Hub) {
+	if _, ok := g.VertexMap[&hubToAdd.Vertex]; !ok {
+		g.VertexMap[&hubToAdd.Vertex] = make([]*vertex.Vertex, 0)
+		g.Hubs[hubToAdd.Vertex.Name] = hubToAdd
+		g.VertexList = append(g.VertexList, &hubToAdd.Vertex)
 	}
 }
 
 func (g *Graph) AddNode(nodeToAdd *node.Node) {
 
-	if _, ok := g.VertexMap[nodeToAdd]; !ok {
-		g.VertexMap[nodeToAdd] = make([]*node.Node, 0)
-		g.VertexList = append(g.VertexList, nodeToAdd)
-		g.VertexByName[nodeToAdd.Name] = nodeToAdd
+	if _, ok := g.VertexMap[&nodeToAdd.Vertex]; !ok {
+		g.VertexMap[&nodeToAdd.Vertex] = make([]*vertex.Vertex, 0)
+		g.Nodes[nodeToAdd.Name] = nodeToAdd
+		g.VertexByName[nodeToAdd.Name] = &nodeToAdd.Vertex
+		g.VertexList = append(g.VertexList, &nodeToAdd.Vertex)
 	}
 }
 
-func (g *Graph) AddEdge(vertex *node.Node, adjacentVertex *node.Node) {
+func (g *Graph) AddEdge(vertex *vertex.Vertex, adjacentVertex *vertex.Vertex) {
 
 	g.VertexMap[vertex] = append(g.VertexMap[vertex], adjacentVertex)
 	g.VertexMap[adjacentVertex] = append(g.VertexMap[adjacentVertex], vertex)
 }
 
 func (g *Graph) FillGraph() {
-
 	for i := 0; i < len(g.VertexList); i++ {
 		for j := i + 1; j < len(g.VertexList); j++ {
 

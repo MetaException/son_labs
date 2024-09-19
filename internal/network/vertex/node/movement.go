@@ -14,15 +14,15 @@ func (s *Node) RandomMove(AreaX, AreaY float64) {
 
 	//fmt.Printf("Node %s (%v;%v) | Goto: x: %v, y: %v\n", s.Name, s.x, s.y, x, y)
 
-	leftBorderX := math.Max(s.BaseNode.X-s.MovingSpeed, 0)
-	rightBorderX := math.Min(s.BaseNode.X+s.MovingSpeed, AreaX)
+	leftBorderX := math.Max(s.Vertex.X-s.MovingSpeed, 0)
+	rightBorderX := math.Min(s.Vertex.X+s.MovingSpeed, AreaX)
 
-	leftBorderY := math.Max(s.BaseNode.Y-s.MovingSpeed, 0)
-	rightBorderY := math.Min(s.BaseNode.Y+s.MovingSpeed, AreaY)
+	leftBorderY := math.Max(s.Vertex.Y-s.MovingSpeed, 0)
+	rightBorderY := math.Min(s.Vertex.Y+s.MovingSpeed, AreaY)
 
 	newX := utils.GenerateRandom(leftBorderX, rightBorderX)
 	newY := utils.GenerateRandom(leftBorderY, rightBorderY)
 
-	s.BaseNode.X = newX
-	s.BaseNode.Y = newY
+	s.Vertex.X = newX
+	s.Vertex.Y = newY
 }
