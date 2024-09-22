@@ -3,6 +3,7 @@ package roundmanager
 import (
 	"lab1/internal/network"
 	"lab1/internal/network/vertex"
+	"strconv"
 )
 
 type RoundManager struct {
@@ -49,6 +50,8 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 	r.G.PrintInfo(roundNumber)
 	r.ClearAllDeadFramesHistory()
+
+	r.G.DrawGraph(strconv.Itoa(roundNumber))
 }
 
 func (r *RoundManager) PerformMoving() {

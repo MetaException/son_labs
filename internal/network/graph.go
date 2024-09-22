@@ -1,10 +1,15 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
+	"image/png"
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/hub"
 	"lab1/internal/network/vertex/node"
+	"path/filepath"
+
+	"github.com/fogleman/gg"
 )
 
 type Graph struct {
@@ -70,4 +75,88 @@ func (g *Graph) FillGraph() {
 	}
 
 	fmt.Println(g.VertexMap)
+}
+
+func (g *Graph) DrawGraph(name string) {
+	const width = 1000
+	const height = 1000
+	const fieldSize = 100.0
+	const padding = 100.0
+	scale := (width - 2*padding) / fieldSize
+
+	// Создаем новое изображение
+	dc := gg.NewContext(width, height)
+
+	// Заливаем фон белым цветом
+	dc.SetRGB(1, 1, 1)
+	dc.Clear()
+
+	// Рисуем рёбра (линии между смежными узлами)
+	dc.SetRGB(0, 0, 0) // Цвет линии (черный)
+	for startNode, neighbors := range g.VertexMap {
+		for _, endNode := range neighbors {
+			dc.DrawLine(startNode.X*scale+padding, startNode.Y*scale+padding, endNode.X*scale+padding, endNode.Y*scale+padding)
+			dc.Stroke()
+		}
+	}
+
+	// Рисуем узлы (в виде окружностей) и их имена
+	for _, node := range g.Nodes {
+		drawNode(dc, node, scale, padding)
+	}
+
+	for _, hub := range g.Hubs {
+		drawHub(dc, hub, scale, padding)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, dc.Image()); err != nil {
+		panic(err)
+	}
+
+	err := dc.SavePNG(filepath.Join("history", name+".png"))
+	if err != nil {
+		panic(err)
+	}
+}
+
+func drawHub(dc *gg.Context, node *hub.Hub, scale, padding float64) {
+	dc.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
+	dc.SetLineWidth(1)
+	dc.DrawCircle(node.X*scale+padding, node.Y*scale+padding, node.R*scale)
+	dc.Stroke()
+
+	dc.DrawCircle(node.X*scale+padding, node.Y*scale+padding, 5)
+	dc.SetRGB(1, 0, 0)
+
+	dc.Fill()
+
+	// Добавляем название узлов
+	dc.SetRGB(0, 0, 0) // Цвет текста (черный)
+
+	dc.DrawStringAnchored(node.Name, node.X*scale+padding, node.Y*scale+padding-64/2-32, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("(%v;%v)", int(node.X), int(node.Y)), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("R: %v", int(node.R)), node.X*scale+padding, node.Y*scale+padding-64/2, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("Frames: %v", len(node.Frames)), node.X*scale+padding, node.Y*scale+padding-64/2+16, 0.5, 0.5)
+	dc.Stroke()
+}
+
+func drawNode(dc *gg.Context, node *node.Node, scale, padding float64) {
+	dc.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
+	dc.SetLineWidth(1)
+	dc.DrawCircle(node.X*scale+padding, node.Y*scale+padding, node.R*scale)
+	dc.Stroke()
+
+	dc.DrawCircle(node.X*scale+padding, node.Y*scale+padding, 5)
+	dc.SetRGB(0, 0.5, 0.8) // Цвет узлов (голубой)
+	dc.Fill()
+
+	// Добавляем название узлов
+	dc.SetRGB(0, 0, 0) // Цвет текста (черный)
+
+	dc.DrawStringAnchored(node.Name, node.X*scale+padding, node.Y*scale+padding-64/2-32, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("(%v;%v)", int(node.X), int(node.Y)), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("R: %v", int(node.R)), node.X*scale+padding, node.Y*scale+padding-64/2, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("FpR: %v; Power: %v; Frames: %v", node.FpR, node.Power, len(node.Frames)), node.X*scale+padding, node.Y*scale+padding-64/2+16, 0.5, 0.5)
+	dc.Stroke()
 }

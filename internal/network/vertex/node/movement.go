@@ -1,6 +1,7 @@
 package node
 
 import (
+	"fmt"
 	"lab1/pkg/utils"
 	"math"
 )
@@ -11,8 +12,6 @@ import (
 // Радиус уменьшается на 1%
 
 func (s *Node) RandomMove(AreaX, AreaY float64) {
-
-	//fmt.Printf("Node %s (%v;%v) | Goto: x: %v, y: %v\n", s.Name, s.x, s.y, x, y)
 
 	leftBorderX := math.Max(s.Vertex.X-s.MovingSpeed, 0)
 	rightBorderX := math.Min(s.Vertex.X+s.MovingSpeed, AreaX)
@@ -25,4 +24,6 @@ func (s *Node) RandomMove(AreaX, AreaY float64) {
 
 	s.Vertex.X = newX
 	s.Vertex.Y = newY
+
+	fmt.Printf("Node %s (%v;%v) | Goto: x: %v, y: %v\n", s.Name, s.X, s.Y, newX, newY)
 }

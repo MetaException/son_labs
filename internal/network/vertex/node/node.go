@@ -26,7 +26,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 		Vertex:          *vertex.NewBaseNode(X, Y, R, Name),
 		FpR:             FpR,
 		FramesIdHistory: make(map[string]int),
-		MovingSpeed:     10,
+		MovingSpeed:     5,
 		Power:           100,
 	}
 

@@ -6,6 +6,7 @@ import (
 	"lab1/internal/network"
 	"lab1/internal/network/vertex/hub"
 	"lab1/internal/network/vertex/node"
+	"os"
 	"strconv"
 )
 
@@ -38,7 +39,14 @@ func main() {
 
 	fmt.Printf("\nStarting...\n")
 
+	err := os.RemoveAll("history")
+	if err != nil {
+		panic(err)
+	}
+	os.Mkdir("history", 0755)
+
 	g.PrintInfo(0)
+	g.DrawGraph(strconv.Itoa(0))
 
 	r := roundmanager.NewRoundManager(g)
 
