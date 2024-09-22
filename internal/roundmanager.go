@@ -15,28 +15,10 @@ func NewRoundManager(g *network.Graph) *RoundManager {
 	}
 }
 
-// Выполняет N раундов
-func (r *RoundManager) PerformNRounds(count int) {
-	for i := range count {
-		r.PerformRound(i + 1)
-		r.PerformMoving()
-	}
-}
-
-// Выполняет раунды до тех пор, пока hub не достингент определённого количества кадров
-func (r *RoundManager) PerformRoundUntilFrameCount(count int) {
-	i := 1
-	for len(r.G.VertexByName["hub"].Frames) != count {
-		r.PerformRound(i)
-		r.PerformMoving()
-		i++
-	}
-}
-
 // Выполняет раунды до тех пор, пока во всех узлах не закончатся кадры
 func (r *RoundManager) PerformRounds() {
 	i := 1
-	for !r.CheckFinished() {
+	for !r.CheckAllPoweroff() && !r.CheckFinished() {
 		r.PerformRound(i)
 		r.PerformMoving()
 
@@ -51,12 +33,18 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 	for _, sender := range r.G.Nodes {
 
+		if sender.Power <= 0 {
+			continue
+		}
+
 		recievers := r.G.VertexMap[&sender.Vertex]
 		for i := range recievers {
 			recievers[i] = sender.Vertex.Send(recievers[i], sender.FpR)
 		}
 
 		sender.DestroyFrames(sender.FpR)
+		sender.Power--
+		sender.R = sender.R * (float64(sender.Power) / 100)
 	}
 
 	r.G.PrintInfo(roundNumber)
@@ -82,6 +70,15 @@ func (r *RoundManager) CheckFinished() bool {
 			return false
 		}
 	}
+	return true
+}
 
+func (r *RoundManager) CheckAllPoweroff() bool {
+
+	for _, node := range r.G.Nodes {
+		if node.Power > 0 {
+			return false
+		}
+	}
 	return true
 }

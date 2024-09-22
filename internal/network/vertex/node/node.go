@@ -14,6 +14,7 @@ type Node struct {
 	FpR             int
 	FramesIdHistory map[string]int
 	MovingSpeed     float64
+	Power           byte //percent
 }
 
 func (node Node) String() string {
@@ -26,6 +27,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 		FpR:             FpR,
 		FramesIdHistory: make(map[string]int),
 		MovingSpeed:     10,
+		Power:           100,
 	}
 
 	for i := range frameCount {

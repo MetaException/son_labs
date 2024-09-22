@@ -27,7 +27,7 @@ func GenerateRandomBaseNode(name string, base Vertex) *Vertex {
 
 	r := float64(utils.GenerateRandomInt(5, 50))
 
-	return NewBaseNode(x, y, r, name)
+	return NewBaseNode(float64(int(x)), float64(int(y)), r, name)
 }
 
 func (s Vertex) IsAdjacent(vertexToCompare *Vertex) bool {

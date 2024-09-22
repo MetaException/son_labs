@@ -9,10 +9,6 @@ type Hub struct {
 	vertex.Vertex
 }
 
-func NewHub() *Hub {
-	return &Hub{}
-}
-
 func GenerateRandomHubByBaseNode(name string, src vertex.Vertex) *Hub {
 
 	base := vertex.GenerateRandomBaseNode(name, src)
