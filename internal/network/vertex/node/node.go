@@ -14,7 +14,7 @@ type Node struct {
 	FpR             int
 	FramesIdHistory map[string]int
 	MovingSpeed     float64
-	Power           byte //percent
+	Power           float64 //percent
 }
 
 func (node Node) String() string {

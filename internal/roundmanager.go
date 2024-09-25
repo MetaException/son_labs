@@ -41,11 +41,14 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 		recievers := r.G.VertexMap[&sender.Vertex]
 		for i := range recievers {
 			recievers[i] = sender.Vertex.Send(recievers[i], sender.FpR)
+			if node, ok := r.G.Nodes[recievers[i].Name]; ok { // Получатель - node
+				node.Power -= 0.2
+			}
 		}
 
 		sender.DestroyFrames(sender.FpR)
 		sender.Power--
-		sender.R = sender.R * (float64(sender.Power) / 100)
+		sender.R *= (sender.Power / 100)
 	}
 
 	r.G.PrintInfo(roundNumber)

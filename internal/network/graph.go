@@ -135,7 +135,7 @@ func drawHub(dc *gg.Context, node *hub.Hub, scale, padding float64) {
 	dc.SetRGB(0, 0, 0) // Цвет текста (черный)
 
 	dc.DrawStringAnchored(node.Name, node.X*scale+padding, node.Y*scale+padding-64/2-32, 0.5, 0.5)
-	dc.DrawStringAnchored(fmt.Sprintf("(%v;%v)", int(node.X), int(node.Y)), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("(%.0f;%.0f)", node.X, node.Y), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
 	dc.DrawStringAnchored(fmt.Sprintf("R: %v", int(node.R)), node.X*scale+padding, node.Y*scale+padding-64/2, 0.5, 0.5)
 	dc.DrawStringAnchored(fmt.Sprintf("Frames: %v", len(node.Frames)), node.X*scale+padding, node.Y*scale+padding-64/2+16, 0.5, 0.5)
 	dc.Stroke()
@@ -155,8 +155,8 @@ func drawNode(dc *gg.Context, node *node.Node, scale, padding float64) {
 	dc.SetRGB(0, 0, 0) // Цвет текста (черный)
 
 	dc.DrawStringAnchored(node.Name, node.X*scale+padding, node.Y*scale+padding-64/2-32, 0.5, 0.5)
-	dc.DrawStringAnchored(fmt.Sprintf("(%v;%v)", int(node.X), int(node.Y)), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("(%.0f;%.0f)", node.X, node.Y), node.X*scale+padding, node.Y*scale+padding-64/2-16, 0.5, 0.5)
 	dc.DrawStringAnchored(fmt.Sprintf("R: %v", int(node.R)), node.X*scale+padding, node.Y*scale+padding-64/2, 0.5, 0.5)
-	dc.DrawStringAnchored(fmt.Sprintf("FpR: %v; Power: %v; Frames: %v", node.FpR, node.Power, len(node.Frames)), node.X*scale+padding, node.Y*scale+padding-64/2+16, 0.5, 0.5)
+	dc.DrawStringAnchored(fmt.Sprintf("FpR: %v; Power: %.2f; Frames: %v", node.FpR, node.Power, len(node.Frames)), node.X*scale+padding, node.Y*scale+padding-64/2+16, 0.5, 0.5)
 	dc.Stroke()
 }
