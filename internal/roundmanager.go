@@ -24,6 +24,8 @@ func (r *RoundManager) PerformRounds() {
 		r.PerformRound(i)
 		r.PerformMoving()
 
+		r.G.DrawGraph(strconv.Itoa(i))
+
 		r.G.VertexMap = make(map[vertex.IVertex][]vertex.IVertex)
 		r.G.FillGraph()
 
@@ -33,12 +35,7 @@ func (r *RoundManager) PerformRounds() {
 
 func (r *RoundManager) PerformRound(roundNumber int) {
 
-	for _, ivertex := range r.G.VertexList {
-
-		sender, ok := ivertex.(*node.Node)
-		if !ok {
-			continue
-		}
+	for _, sender := range r.G.Nodes {
 
 		if sender.Power <= 0 {
 			continue
@@ -56,8 +53,6 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 	r.G.PrintInfo(roundNumber)
 	r.ClearAllDeadFramesHistory()
-
-	r.G.DrawGraph(strconv.Itoa(roundNumber))
 }
 
 func (r *RoundManager) PerformMoving() {
@@ -92,7 +87,7 @@ func (r *RoundManager) CheckAllPoweroff() bool {
 	return true
 }
 
-func Communicate(src *node.Node, dist vertex.IVertex, count int) {
+func Communicate(src *node.Node, dist vertex.IVertex, count int) { // TODO: убрать в другое место??
 
 	if count > len(src.Vertex.Frames) {
 		count = len(src.Vertex.Frames)
