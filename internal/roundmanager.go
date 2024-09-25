@@ -3,6 +3,7 @@ package roundmanager
 import (
 	"lab1/internal/network"
 	"lab1/internal/network/vertex"
+	"lab1/internal/network/vertex/node"
 	"strconv"
 )
 
@@ -23,7 +24,7 @@ func (r *RoundManager) PerformRounds() {
 		r.PerformRound(i)
 		r.PerformMoving()
 
-		r.G.VertexMap = make(map[*vertex.Vertex][]*vertex.Vertex)
+		r.G.VertexMap = make(map[vertex.IVertex][]vertex.IVertex)
 		r.G.FillGraph()
 
 		i++
@@ -32,18 +33,20 @@ func (r *RoundManager) PerformRounds() {
 
 func (r *RoundManager) PerformRound(roundNumber int) {
 
-	for _, sender := range r.G.Nodes {
+	for _, ivertex := range r.G.VertexList {
+
+		sender, ok := ivertex.(*node.Node)
+		if !ok {
+			continue
+		}
 
 		if sender.Power <= 0 {
 			continue
 		}
 
-		recievers := r.G.VertexMap[&sender.Vertex]
+		recievers := r.G.VertexMap[sender]
 		for i := range recievers {
-			recievers[i] = sender.Vertex.Send(recievers[i], sender.FpR)
-			if node, ok := r.G.Nodes[recievers[i].Name]; ok { // Получатель - node
-				node.Power -= 0.2
-			}
+			Communicate(sender, recievers[i], sender.FpR)
 		}
 
 		sender.DestroyFrames(sender.FpR)
@@ -64,8 +67,8 @@ func (r *RoundManager) PerformMoving() {
 }
 
 func (r *RoundManager) ClearAllDeadFramesHistory() {
-	for _, node := range r.G.VertexList {
-		node.ClearDeadFramesHistory()
+	for _, vertex := range r.G.VertexList {
+		vertex.ClearDeadFramesHistory()
 	}
 }
 
@@ -87,4 +90,33 @@ func (r *RoundManager) CheckAllPoweroff() bool {
 		}
 	}
 	return true
+}
+
+func Communicate(src *node.Node, dist vertex.IVertex, count int) {
+
+	if count > len(src.Vertex.Frames) {
+		count = len(src.Vertex.Frames)
+	}
+
+	framesToSend := src.Vertex.Frames[:count]
+
+	sentCount := 0.0
+	reciever := dist.GetBase()
+
+	for _, frame := range framesToSend {
+		if frame.ParentName != reciever.Name {
+			if _, ok := reciever.FramesIdHistory[frame.ID]; !ok && frame.TTL > 0 {
+				reciever.FramesIdHistory[frame.ID] = frame.TTL
+				reciever.Frames = append(reciever.Frames, frame)
+				frame.TTL--
+				sentCount++
+			}
+		}
+	}
+
+	//	fmt.Printf("\n%s %v sends %v to %s %v", src.Name, src.Frames, framesToSend, reciever.Name, reciever.Frames)
+
+	if node, ok := dist.(*node.Node); ok {
+		node.Power -= 0.2 * float64(sentCount)
+	}
 }

@@ -22,13 +22,13 @@ func main() {
 	var lastVertex node.Node
 	for i := range g.Length { // Создаём вершины
 		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i + 1))
-		g.AddNode(vertex)
+		g.AddVertex(vertex)
 
 		lastVertex = *vertex
 	}
 
 	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.Vertex)
-	g.AddHub(hub)
+	g.AddVertex(hub)
 
 	fmt.Printf("\nЗаполнение графа...\n\n")
 	g.FillGraph()

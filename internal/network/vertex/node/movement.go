@@ -1,7 +1,6 @@
 package node
 
 import (
-	"fmt"
 	"lab1/pkg/utils"
 	"math"
 )
@@ -25,5 +24,5 @@ func (s *Node) RandomMove(AreaX, AreaY float64) {
 	s.Vertex.X = newX
 	s.Vertex.Y = newY
 
-	fmt.Printf("Node %s (%v;%v) | Goto: x: %v, y: %v\n", s.Name, s.X, s.Y, newX, newY)
+	//fmt.Printf("Node %s (%v;%v) | Goto: x: %v, y: %v\n", s.Name, s.X, s.Y, newX, newY)
 }

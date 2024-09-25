@@ -8,7 +8,8 @@ import (
 func (g *Graph) PrintInfo(roundNumber int) {
 	fmt.Println()
 	for _, node := range g.VertexList {
-		fmt.Printf("%v| %s : %v\n", roundNumber, node.Name, node.Frames)
+		base := node.GetBase()
+		fmt.Printf("%v| %s : %v\n", roundNumber, base.Name, base.Frames)
 	}
 }
 
@@ -19,21 +20,11 @@ func (g *Graph) CheckConnectivity() bool {
 	}
 
 	isFirst := false
-	var first *vertex.Vertex
+	var first vertex.IVertex
 
-	hashset := make(map[*vertex.Vertex]struct{})
+	hashset := make(map[vertex.IVertex]struct{})
 
-	vertexList := make([]*vertex.Vertex, 0)
-
-	for _, node := range g.Nodes {
-		vertexList = append(vertexList, &node.Vertex)
-	}
-
-	for _, hub := range g.Hubs {
-		vertexList = append(vertexList, &hub.Vertex)
-	}
-
-	for _, node := range vertexList {
+	for _, node := range g.VertexList {
 		if !isFirst {
 			first = node
 			isFirst = true
@@ -41,7 +32,7 @@ func (g *Graph) CheckConnectivity() bool {
 		hashset[node] = struct{}{}
 	}
 
-	queue := []*vertex.Vertex{first}
+	queue := []vertex.IVertex{first}
 	delete(hashset, first)
 
 	for len(queue) > 0 {

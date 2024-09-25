@@ -9,8 +9,18 @@ type Vertex struct {
 	FramesIdHistory map[string]int
 }
 
+type IVertex interface {
+	ClearDeadFramesHistory() Vertex
+	GetBase() *Vertex
+	UpdateBase(base *Vertex) // Метод для обновления базовой структуры
+}
+
 func (base Vertex) String() string {
 	return base.Name
+}
+
+func (base *Vertex) GetBase() *Vertex {
+	return base
 }
 
 func NewBaseNode(X, Y, R float64, Name string) *Vertex {

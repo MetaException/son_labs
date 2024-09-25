@@ -21,6 +21,10 @@ func (node Node) String() string {
 	return node.Vertex.Name
 }
 
+func (n *Node) UpdateBase(base *vertex.Vertex) {
+	n.Vertex = *base
+}
+
 func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 	node := &Node{
 		Vertex:          *vertex.NewBaseNode(X, Y, R, Name),
@@ -44,7 +48,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 	return node
 }
 
-func (s *Node) GenerateRandomVertexByVertex(name string) *Node {
+func (s Node) GenerateRandomVertexByVertex(name string) *Node {
 
 	base := vertex.GenerateRandomBaseNode(name, s.Vertex)
 	nodeFrameCount := utils.GenerateRandomInt(1, 3)
