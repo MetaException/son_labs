@@ -114,10 +114,10 @@ func drawVertex(dc *gg.Context, vertex vertex.IVertex, scale, padding float64) {
 
 	vbase := vertex.GetBase()
 
-	dc.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
-	dc.SetLineWidth(1)
-	dc.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, vbase.R*scale)
-	dc.Stroke()
+	//dc.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
+	//dc.SetLineWidth(1)
+	//dc.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, vbase.R*scale)
+	//dc.Stroke()
 
 	dc.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, 5)
 

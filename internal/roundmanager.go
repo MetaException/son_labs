@@ -47,7 +47,7 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 		sender.DestroyFrames(sender.FpR)
 		sender.Power--
-		sender.R *= (sender.Power / 100)
+		//sender.R *= (sender.Power / 100)
 	}
 
 	r.G.PrintInfo(roundNumber)
