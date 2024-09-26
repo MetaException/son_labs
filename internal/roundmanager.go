@@ -3,7 +3,6 @@ package roundmanager
 import (
 	"lab1/internal/network"
 	"lab1/internal/network/vertex"
-	"lab1/internal/network/vertex/node"
 	"strconv"
 )
 
@@ -43,7 +42,7 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 		recievers := r.G.VertexMap[sender]
 		for i := range recievers {
-			Communicate(sender, recievers[i], sender.FpR)
+			network.Flooding(sender, recievers[i], sender.FpR)
 		}
 
 		sender.DestroyFrames(sender.FpR)
@@ -85,33 +84,4 @@ func (r *RoundManager) CheckAllPoweroff() bool {
 		}
 	}
 	return true
-}
-
-func Communicate(src *node.Node, dist vertex.IVertex, count int) { // TODO: убрать в другое место??
-
-	if count > len(src.Vertex.Frames) {
-		count = len(src.Vertex.Frames)
-	}
-
-	framesToSend := src.Vertex.Frames[:count]
-
-	sentCount := 0.0
-	reciever := dist.GetBase()
-
-	for _, frame := range framesToSend {
-		if frame.ParentName != reciever.Name {
-			if _, ok := reciever.FramesIdHistory[frame.ID]; !ok && frame.TTL > 0 {
-				reciever.FramesIdHistory[frame.ID] = frame.TTL
-				reciever.Frames = append(reciever.Frames, frame)
-				frame.TTL--
-				sentCount++
-			}
-		}
-	}
-
-	//	fmt.Printf("\n%s %v sends %v to %s %v", src.Name, src.Frames, framesToSend, reciever.Name, reciever.Frames)
-
-	if node, ok := dist.(*node.Node); ok {
-		node.Power -= 0.2 * float64(sentCount)
-	}
 }
