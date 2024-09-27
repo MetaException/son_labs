@@ -21,7 +21,7 @@ func main() {
 	fmt.Printf("\nСоздание вершин...\n\n")
 	var lastVertex node.Node
 	for i := range g.Length { // Создаём вершины
-		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i + 1))
+		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i + 1)) // вынести в одну функцию
 		g.AddVertex(vertex)
 
 		lastVertex = *vertex
@@ -31,11 +31,11 @@ func main() {
 	g.AddVertex(hub)
 
 	fmt.Printf("\nЗаполнение графа...\n\n")
-	g.FillGraph()
+	g.FillGraph(1)
 
-	if check := g.CheckConnectivity(); !check { // Проверяем граф на связность
-		panic("\nСоздан несвязный граф")
-	}
+	//if check := g.CheckConnectivity(); !check { // Проверяем граф на связность
+	//	panic("\nСоздан несвязный граф")
+	//}
 
 	fmt.Printf("\nStarting...\n")
 

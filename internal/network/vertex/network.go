@@ -7,6 +7,8 @@ import (
 
 func GenerateRandomBaseNode(name string, base Vertex) *Vertex {
 
+	base.R = 100
+
 	x := float64(utils.GenerateRandomInt(0, 100))
 	y := float64(utils.GenerateRandomInt(0, 100))
 
@@ -28,12 +30,4 @@ func GenerateRandomBaseNode(name string, base Vertex) *Vertex {
 	//r := float64(utils.GenerateRandomInt(5, 50))
 
 	return NewBaseNode(float64(int(x)), float64(int(y)), 100.0, name)
-}
-
-func IsAdjacent(ivertexSrc IVertex, ivertexToCompare IVertex) bool {
-
-	vertexSrc := ivertexSrc.GetBase()
-	vertexToCompare := ivertexToCompare.GetBase()
-
-	return math.Sqrt(math.Pow(vertexToCompare.X-vertexSrc.X, 2)+math.Pow(vertexToCompare.Y-vertexSrc.Y, 2)) <= math.Max(vertexSrc.R, vertexToCompare.R)
 }

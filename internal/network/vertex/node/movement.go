@@ -5,11 +5,6 @@ import (
 	"math"
 )
 
-// Энергия убывает на 1% каждые N передач
-// Передвижение в пределах области
-// Шлюзы стоят на месте
-// Радиус уменьшается на 1%
-
 func (s *Node) RandomMove(AreaX, AreaY float64) {
 
 	leftBorderX := math.Max(s.Vertex.X-s.MovingSpeed, 0)

@@ -21,12 +21,15 @@ func (r *RoundManager) PerformRounds() {
 	i := 1
 	for !r.CheckAllPoweroff() && !r.CheckFinished() {
 		r.PerformRound(i)
-		r.PerformMoving()
+		//r.PerformMoving()
 
 		r.G.DrawGraph(strconv.Itoa(i))
 
 		r.G.VertexMap = make(map[vertex.IVertex][]vertex.IVertex)
-		r.G.FillGraph()
+		for _, node := range r.G.Nodes {
+			node.IsClusterHead = false
+		}
+		r.G.FillGraph(i)
 
 		i++
 	}
@@ -42,7 +45,13 @@ func (r *RoundManager) PerformRound(roundNumber int) {
 
 		recievers := r.G.VertexMap[sender]
 		for i := range recievers {
-			network.Flooding(sender, recievers[i], sender.FpR)
+			var count int
+			if sender.IsClusterHead {
+				count = 25
+			} else {
+				count = sender.FpR
+			}
+			network.Flooding(sender, recievers[i], count)
 		}
 
 		sender.DestroyFrames(sender.FpR)
