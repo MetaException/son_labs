@@ -16,7 +16,6 @@ type Node struct {
 	MovingSpeed     float64
 	Power           float64 //percent
 	Cluster         int
-	IsClusterHead   bool
 }
 
 func (node Node) String() string {
@@ -35,13 +34,12 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int, cluster int)
 		MovingSpeed:     5,
 		Power:           100,
 		Cluster:         cluster,
-		IsClusterHead:   false,
 	}
 
 	for i := range frameCount {
 		frame := &frame.Frame{
 			ParentName: Name,
-			TTL:        100, // Ставить динамически
+			TTL:        150, // Ставить динамически
 			ID:         node.Name + "-" + strconv.Itoa(i),
 		}
 
@@ -55,7 +53,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int, cluster int)
 func (s Node) GenerateRandomVertexByVertex(name string) *Node {
 
 	base := vertex.GenerateRandomBaseNode(name, s.Vertex)
-	nodeFrameCount := utils.GenerateRandomInt(1, 3)
+	nodeFrameCount := utils.GenerateRandomInt(5, 10)
 	fpr := utils.GenerateRandomInt(1, 5)
 
 	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)

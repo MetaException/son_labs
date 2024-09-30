@@ -1,43 +1,52 @@
 package network
 
 import (
-	"bytes"
 	"fmt"
-	"image/png"
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/hub"
 	"lab1/internal/network/vertex/node"
-	"math"
-	"math/rand"
-	"path/filepath"
-
-	"github.com/fogleman/gg"
 )
 
 type Graph struct {
-	VertexMap       map[vertex.IVertex][]vertex.IVertex // Список смежности
-	VertexList      []vertex.IVertex                    // Все вершины графа сети
-	G               map[*node.Node]struct{}
-	VertexByCluster map[int][]*node.Node
+	VertexMap  map[vertex.IVertex][]vertex.IVertex // Список смежности
+	VertexList []vertex.IVertex                    // Все вершины графа сети
+
+	VertexByCluster    map[int][]*node.Node
+	ClusterHeadHistory map[*node.Node]struct{}
+	CurrentHeadList    map[*node.Node]struct{}
 
 	Nodes map[string]*node.Node
 	Hubs  map[string]*hub.Hub
-
-	Length       int
-	AreaX, AreaY int
 }
 
 func NewGraph(N int) *Graph {
 	return &Graph{
-		VertexMap:       make(map[vertex.IVertex][]vertex.IVertex, N),
-		Nodes:           make(map[string]*node.Node, 0),
-		Length:          N,
-		AreaX:           100,
-		AreaY:           100,
-		Hubs:            make(map[string]*hub.Hub),
-		VertexList:      make([]vertex.IVertex, 0),
-		G:               make(map[*node.Node]struct{}),
-		VertexByCluster: make(map[int][]*node.Node),
+		VertexMap:          make(map[vertex.IVertex][]vertex.IVertex, N),
+		Nodes:              make(map[string]*node.Node, 0),
+		Hubs:               make(map[string]*hub.Hub),
+		VertexList:         make([]vertex.IVertex, 0),
+		VertexByCluster:    make(map[int][]*node.Node),
+		ClusterHeadHistory: make(map[*node.Node]struct{}),
+		CurrentHeadList:    make(map[*node.Node]struct{}),
+	}
+}
+
+func (g *Graph) ClearMap() {
+	for i := range g.VertexMap {
+		delete(g.VertexMap, i)
+	}
+}
+
+func (g *Graph) ClearHeadHistory() {
+
+	if len(g.ClusterHeadHistory) == len(g.Nodes) {
+		for n := range g.ClusterHeadHistory {
+			delete(g.ClusterHeadHistory, n)
+		}
+	}
+
+	for n := range g.CurrentHeadList {
+		delete(g.CurrentHeadList, n)
 	}
 }
 
@@ -63,47 +72,14 @@ func (g *Graph) AddEdge(vertex vertex.IVertex, adjacentVertex vertex.IVertex) {
 	g.VertexMap[adjacentVertex] = append(g.VertexMap[adjacentVertex], vertex)
 }
 
-func (g *Graph) CalculateTn(r int) {
-
-	CHCandidates := make(map[int][]*node.Node)
-
-	for _, node := range g.Nodes {
-
-		P := 0.04 //1.0 / float64(len(g.VertexByCluster[node.Cluster]))
-
-		var tn float64
-		if _, ok := g.G[node]; !ok {
-			tn = P / (1 - P*math.Mod(float64(r), 1/P))
-		} else {
-			tn = 0
-		}
-
-		if rand.Float64() < tn {
-			CHCandidates[node.Cluster] = append(CHCandidates[node.Cluster], node)
-		}
-	}
-
-	for k, v := range CHCandidates {
-		fmt.Printf("for %v: %v\n", k, v)
-		if len(v) != 1 {
-			g.Nodes[CHCandidates[k][0].Name].IsClusterHead = true // Для примера берём первый можно вынести в отденый список
-			g.G[CHCandidates[k][0]] = struct{}{}
-		} else { // Выбираем по энергии и по расстоянию
-
-		}
-	}
-}
-
-func (g *Graph) FillGraph(roundNumber int) {
-
-	g.CalculateTn(roundNumber)
+func (g *Graph) Fill(roundNumber int) {
 	for i := 0; i < len(g.VertexList); i++ {
 		for j := i + 1; j < len(g.VertexList); j++ {
 
 			v := g.VertexList[i]
 			vertexToCompare := g.VertexList[j]
 
-			if IsAdjacent(v, vertexToCompare) {
+			if g.IsAdjacent(v, vertexToCompare) {
 				g.AddEdge(v, vertexToCompare)
 			}
 		}
@@ -112,96 +88,73 @@ func (g *Graph) FillGraph(roundNumber int) {
 	fmt.Println(g.VertexMap)
 }
 
-func (g *Graph) DrawGraph(name string) {
-	const width = 1000
-	const height = 1000
-	const fieldSize = 100.0
-	const padding = 100.0
-	scale := (width - 2*padding) / fieldSize
-
-	// Создаем новое изображение
-	dc := gg.NewContext(width, height)
-
-	// Заливаем фон белым цветом
-	dc.SetRGB(1, 1, 1)
-	dc.Clear()
-
-	// Рисуем рёбра (линии между смежными узлами)
-	dc.SetRGB(0, 0, 0) // Цвет линии (черный)
-	for istartNode, neighbors := range g.VertexMap {
-		startNode := istartNode.GetBase()
-		for _, iendNode := range neighbors {
-			endNode := iendNode.GetBase()
-			dc.DrawLine(startNode.X*scale+padding, startNode.Y*scale+padding, endNode.X*scale+padding, endNode.Y*scale+padding)
-			dc.Stroke()
-		}
-	}
-
-	for _, node := range g.VertexList {
-		drawVertex(dc, node, scale, padding)
-	}
-
-	buf := new(bytes.Buffer)
-	if err := png.Encode(buf, dc.Image()); err != nil {
-		panic(err)
-	}
-
-	err := dc.SavePNG(filepath.Join("history", name+".png"))
-	if err != nil {
-		panic(err)
-	}
-}
-
-func IsAdjacent(ivertexSrc vertex.IVertex, ivertexToCompare vertex.IVertex) bool {
+func (g *Graph) IsAdjacent(ivertexSrc vertex.IVertex, ivertexToCompare vertex.IVertex) bool {
 
 	leftNode, okleft := ivertexSrc.(*node.Node)
 	rightNode, okright := ivertexToCompare.(*node.Node)
 
+	_, isRightNodeHead := g.CurrentHeadList[rightNode]
+	_, isLeftNodeHead := g.CurrentHeadList[leftNode]
+
 	if !okleft {
-		return rightNode.IsClusterHead
+		return isRightNodeHead
 	}
 	if !okright {
-		return leftNode.IsClusterHead
+		return isLeftNodeHead
 	}
 
-	if leftNode.IsClusterHead && rightNode.IsClusterHead {
+	if isLeftNodeHead && isRightNodeHead {
 		return false
 	}
 
-	return leftNode.Cluster == rightNode.Cluster && (leftNode.IsClusterHead || rightNode.IsClusterHead)
+	return leftNode.Cluster == rightNode.Cluster && (isLeftNodeHead || isRightNodeHead)
 }
 
-func drawVertex(dc *gg.Context, vertex vertex.IVertex, scale, padding float64) {
+func (g *Graph) PrintInfo(roundNumber int) {
+	fmt.Println()
+	for _, node := range g.VertexList {
+		base := node.GetBase()
+		fmt.Printf("%v| %s : %v\n", roundNumber, base.Name, base.Frames)
+	}
+}
 
-	vbase := vertex.GetBase()
+func (g *Graph) CheckConnectivity() bool {
 
-	//dc.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
-	//dc.SetLineWidth(1)
-	//dc.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, vbase.R*scale)
-	//dc.Stroke()
-
-	dc.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, 5)
-
-	if _, ok := vertex.(*node.Node); ok {
-		dc.SetRGB(0, 0.5, 0.8) // Цвет узлов (голубой)
-	} else {
-		dc.SetRGB(1, 0, 0)
+	if len(g.VertexMap) == 0 {
+		return true
 	}
 
-	dc.Fill()
+	isFirst := false
+	var first vertex.IVertex
 
-	// Добавляем название узлов
-	dc.SetRGB(0, 0, 0) // Цвет текста (черный)
+	hashset := make(map[vertex.IVertex]struct{})
 
-	dc.DrawStringAnchored(vbase.Name, vbase.X*scale+padding, vbase.Y*scale+padding-64/2-32, 0.5, 0.5)
-	//dc.DrawStringAnchored(fmt.Sprintf("(%.0f;%.0f)", vbase.X, vbase.Y), vbase.X*scale+padding, vbase.Y*scale+padding-64/2-16, 0.5, 0.5)
-	//dc.DrawStringAnchored(fmt.Sprintf("R: %.0f", vbase.R), vbase.X*scale+padding, vbase.Y*scale+padding-64/2, 0.5, 0.5)
-
-	if node, ok := vertex.(*node.Node); ok {
-		dc.DrawStringAnchored(fmt.Sprintf("Cluster: %v", node.Cluster), vbase.X*scale+padding, vbase.Y*scale+padding-64/2+16, 0.5, 0.5)
-		//dc.DrawStringAnchored(fmt.Sprintf("FpR: %v; Power: %.2f; Frames: %v; Cluster: %v", node.FpR, node.Power, len(node.Frames), node.Cluster), vbase.X*scale+padding, vbase.Y*scale+padding-64/2+16, 0.5, 0.5)
-	} else {
-		dc.DrawStringAnchored(fmt.Sprintf("Frames: %v", len(vbase.Frames)), vbase.X*scale+padding, vbase.Y*scale+padding-64/2+16, 0.5, 0.5)
+	for _, node := range g.VertexList {
+		if !isFirst {
+			first = node
+			isFirst = true
+		}
+		hashset[node] = struct{}{}
 	}
-	dc.Stroke()
+
+	queue := []vertex.IVertex{first}
+	delete(hashset, first)
+
+	for len(queue) > 0 {
+
+		qNode := queue[0]
+		queue = queue[1:]
+		for _, node := range g.VertexMap[qNode] {
+			if _, ok := hashset[node]; ok {
+				queue = append(queue, node)
+				delete(hashset, node)
+			}
+		}
+
+		if len(hashset) == 0 {
+			return true
+		}
+	}
+	fmt.Println(hashset)
+	return false
 }
