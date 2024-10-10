@@ -66,9 +66,10 @@ func (net *Network) PerformRounds() {
 		net.graph.Fill(i)
 
 		net.PerformRound(i)
-		net.PerformMoving()
 
 		net.render.DrawGraphImage(strconv.Itoa(i), *net.graph)
+
+		net.PerformMoving()
 
 		i++
 	}
