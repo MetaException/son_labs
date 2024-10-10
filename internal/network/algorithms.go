@@ -57,13 +57,39 @@ func (graph *Graph) CalculateTn(r int) {
 		}
 	}
 
-	for k, v := range CHCandidates {
+	for k := 1; k <= 4; k++ {
+
+		v, ok := CHCandidates[k]
+
 		fmt.Printf("for %v: %v\n", k, v)
-		if len(v) > 0 {
+		if ok {
 			graph.ClusterHeadHistory[v[0]] = struct{}{}
 			graph.CurrentHeadList[v[0]] = struct{}{}
+		} else {
+			// Если ни один не попал, то выбираем первый попавшийся для конкретного кластера
+			//fmt.Println("hello")
+			//fmt.Println(graph.VertexByCluster)
+
+			isFound := graph.pickupRandomNode(k)
+
+			// Если уже прям все узлы были хотябы раз, то берём первый в списке
+			if !isFound {
+				graph.ClusterHeadHistory[graph.VertexByCluster[k][0]] = struct{}{}
+				graph.CurrentHeadList[graph.VertexByCluster[k][0]] = struct{}{}
+			}
 		}
 	}
+}
+
+func (graph *Graph) pickupRandomNode(k int) bool {
+	for _, v := range graph.VertexByCluster[k] {
+		if _, ok := graph.ClusterHeadHistory[v]; !ok {
+			graph.ClusterHeadHistory[v] = struct{}{}
+			graph.CurrentHeadList[v] = struct{}{}
+			return true
+		}
+	}
+	return false
 }
 
 func (graph *Graph) ClearAllDeadFramesHistory() {

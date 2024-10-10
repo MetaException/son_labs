@@ -37,10 +37,6 @@ func (net *Network) Startup(nodeCount int) {
 	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.Vertex)
 	net.graph.AddVertex(hub)
 
-	fmt.Printf("\nЗаполнение графа...\n\n")
-	net.graph.CalculateTn(1)
-	net.graph.Fill(1)
-
 	//if check := g.CheckConnectivity(); !check { // Проверяем граф на связность
 	//	panic("\nСоздан несвязный граф")
 	//}
@@ -53,8 +49,8 @@ func (net *Network) Startup(nodeCount int) {
 	}
 	os.Mkdir("history", 0755)
 
-	net.graph.PrintInfo(0)
-	net.render.DrawGraphImage(strconv.Itoa(0), *net.graph)
+	//net.graph.PrintInfo(0)
+	//net.render.DrawGraphImage(strconv.Itoa(0), *net.graph)
 
 	net.PerformRounds()
 }
@@ -62,15 +58,17 @@ func (net *Network) Startup(nodeCount int) {
 func (net *Network) PerformRounds() {
 	i := 1
 	for !net.graph.CheckAllPoweroff() && !net.graph.CheckFinished() {
-		net.PerformRound(i)
-		//r.PerformMoving()
-
-		net.render.DrawGraphImage(strconv.Itoa(i), *net.graph)
 
 		net.graph.ClearMap()
 		net.graph.ClearHeadHistory()
+		net.graph.Clasterize()
 		net.graph.CalculateTn(i)
 		net.graph.Fill(i)
+
+		net.PerformRound(i)
+		net.PerformMoving()
+
+		net.render.DrawGraphImage(strconv.Itoa(i), *net.graph)
 
 		i++
 	}

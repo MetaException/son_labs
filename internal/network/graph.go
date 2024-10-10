@@ -57,9 +57,6 @@ func (g *Graph) AddVertex(vertexToAdd vertex.IVertex) {
 
 		if n, ok := vertexToAdd.(*node.Node); ok {
 			g.Nodes[n.Name] = n
-
-			g.VertexByCluster[n.Cluster] = append(g.VertexByCluster[n.Cluster], n)
-
 		} else if hub, ok := vertexToAdd.(*hub.Hub); ok {
 			g.Hubs[hub.Name] = hub
 		}
@@ -157,4 +154,28 @@ func (g *Graph) CheckConnectivity() bool {
 	}
 	fmt.Println(hashset)
 	return false
+}
+
+func (g *Graph) Clasterize() {
+
+	//Определяем к какому кластеру относится
+	//4 кластера, область 0..100. Т.е. по 0.25,
+
+	for k := range g.VertexByCluster {
+		delete(g.VertexByCluster, k)
+	}
+
+	for _, v := range g.Nodes {
+		if v.X < 50 && v.Y < 50 {
+			v.Cluster = 1
+		} else if v.X < 50 && v.Y >= 50 {
+			v.Cluster = 2
+		} else if v.X >= 50 && v.Y < 50 {
+			v.Cluster = 3
+		} else {
+			v.Cluster = 4
+		}
+
+		g.VertexByCluster[v.Cluster] = append(g.VertexByCluster[v.Cluster], v)
+	}
 }

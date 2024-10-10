@@ -26,14 +26,13 @@ func (n *Node) UpdateBase(base *vertex.Vertex) {
 	n.Vertex = *base
 }
 
-func NewNode(X, Y, R float64, FpR int, Name string, frameCount int, cluster int) *Node {
+func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 	node := &Node{
 		Vertex:          *vertex.NewBaseNode(X, Y, R, Name),
 		FpR:             FpR,
 		FramesIdHistory: make(map[string]int),
 		MovingSpeed:     5,
 		Power:           100,
-		Cluster:         cluster,
 	}
 
 	for i := range frameCount {
@@ -58,19 +57,5 @@ func (s Node) GenerateRandomVertexByVertex(name string) *Node {
 
 	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
 
-	//Определяем к какому кластеру относится
-	//4 кластера, область 0..100. Т.е. по 0.25,
-
-	var cluster int
-	if base.X <= 50 && base.Y <= 50 {
-		cluster = 1
-	} else if base.X <= 50 && base.Y > 50 {
-		cluster = 2
-	} else if base.X > 50 && base.Y <= 50 {
-		cluster = 3
-	} else if base.X > 50 && base.Y > 50 {
-		cluster = 4
-	}
-
-	return NewNode(base.X, base.Y, base.R, fpr, name, nodeFrameCount, cluster)
+	return NewNode(base.X, base.Y, base.R, fpr, name, nodeFrameCount)
 }
