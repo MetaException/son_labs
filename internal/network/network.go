@@ -47,6 +47,9 @@ func (net *Network) Startup(nodeCount int) {
 	}
 	os.Mkdir("history", 0755)
 
+	net.graph.Fill(0)
+	net.render.DrawGraphImage("0", *net.graph)
+
 	net.PerformRounds()
 }
 
