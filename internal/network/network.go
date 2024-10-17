@@ -91,6 +91,7 @@ func (net *Network) PerformRound(roundNumber int) {
 
 		sender.DestroyFrames(count)
 		sender.Power--
+		sender.R *= (sender.Power / 100)
 	}
 
 	net.graph.PrintInfo(roundNumber)

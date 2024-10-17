@@ -38,7 +38,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 	for i := range frameCount {
 		frame := &frame.Frame{
 			ParentName: Name,
-			TTL:        150, // Ставить динамически
+			TTL:        100, // Ставить динамически
 			ID:         node.Name + "-" + strconv.Itoa(i),
 		}
 
