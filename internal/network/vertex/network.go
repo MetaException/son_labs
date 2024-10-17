@@ -7,8 +7,6 @@ import (
 
 func GenerateRandomBaseNode(name string, base Vertex) *Vertex {
 
-	base.R = 100
-
 	x := float64(utils.GenerateRandomInt(0, 100))
 	y := float64(utils.GenerateRandomInt(0, 100))
 
@@ -27,7 +25,7 @@ func GenerateRandomBaseNode(name string, base Vertex) *Vertex {
 		y = cy + dy*ratio
 	}
 
-	//r := float64(utils.GenerateRandomInt(5, 50))
+	r := float64(utils.GenerateRandomInt(5, 50))
 
-	return NewBaseNode(float64(int(x)), float64(int(y)), 100.0, name)
+	return NewBaseNode(float64(int(x)), float64(int(y)), r, name)
 }

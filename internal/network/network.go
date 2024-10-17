@@ -37,10 +37,6 @@ func (net *Network) Startup(nodeCount int) {
 	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.Vertex)
 	net.graph.AddVertex(hub)
 
-	//if check := g.CheckConnectivity(); !check { // Проверяем граф на связность
-	//	panic("\nСоздан несвязный граф")
-	//}
-
 	fmt.Printf("\nStarting...\n")
 
 	err := os.RemoveAll("history")
@@ -48,9 +44,6 @@ func (net *Network) Startup(nodeCount int) {
 		panic(err)
 	}
 	os.Mkdir("history", 0755)
-
-	//net.graph.PrintInfo(0)
-	//net.render.DrawGraphImage(strconv.Itoa(0), *net.graph)
 
 	net.PerformRounds()
 }
@@ -60,10 +53,13 @@ func (net *Network) PerformRounds() {
 	for !net.graph.CheckAllPoweroff() && !net.graph.CheckFinished() {
 
 		net.graph.ClearMap()
-		net.graph.ClearHeadHistory()
-		net.graph.Clasterize()
-		net.graph.CalculateTn(i)
 		net.graph.Fill(i)
+
+		if i == 1 {
+			if check := net.graph.CheckConnectivity(); !check { // Проверяем граф на связность
+				panic("\nСоздан несвязный граф")
+			}
+		}
 
 		net.PerformRound(i)
 
@@ -90,15 +86,6 @@ func (net *Network) PerformRound(roundNumber int) {
 
 		var count int = sender.FpR
 		for i := range recievers {
-			if node, ok := recievers[i].(*node.Node); ok {
-				if _, ok := net.graph.CurrentHeadList[node]; !ok {
-					continue // Говнокод
-				}
-			}
-
-			if _, ok := net.graph.CurrentHeadList[sender]; ok {
-				count = 25
-			}
 			Flooding(sender, recievers[i], count)
 		}
 

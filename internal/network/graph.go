@@ -5,15 +5,12 @@ import (
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/hub"
 	"lab1/internal/network/vertex/node"
+	"math"
 )
 
 type Graph struct {
 	VertexMap  map[vertex.IVertex][]vertex.IVertex // Список смежности
 	VertexList []vertex.IVertex                    // Все вершины графа сети
-
-	VertexByCluster    map[int][]*node.Node
-	ClusterHeadHistory map[*node.Node]struct{}
-	CurrentHeadList    map[*node.Node]struct{}
 
 	Nodes map[string]*node.Node
 	Hubs  map[string]*hub.Hub
@@ -21,32 +18,16 @@ type Graph struct {
 
 func NewGraph(N int) *Graph {
 	return &Graph{
-		VertexMap:          make(map[vertex.IVertex][]vertex.IVertex, N),
-		Nodes:              make(map[string]*node.Node, 0),
-		Hubs:               make(map[string]*hub.Hub),
-		VertexList:         make([]vertex.IVertex, 0),
-		VertexByCluster:    make(map[int][]*node.Node),
-		ClusterHeadHistory: make(map[*node.Node]struct{}),
-		CurrentHeadList:    make(map[*node.Node]struct{}),
+		VertexMap:  make(map[vertex.IVertex][]vertex.IVertex, N),
+		Nodes:      make(map[string]*node.Node, 0),
+		Hubs:       make(map[string]*hub.Hub),
+		VertexList: make([]vertex.IVertex, 0),
 	}
 }
 
 func (g *Graph) ClearMap() {
 	for i := range g.VertexMap {
 		delete(g.VertexMap, i)
-	}
-}
-
-func (g *Graph) ClearHeadHistory() {
-
-	if len(g.ClusterHeadHistory) == len(g.Nodes) {
-		for n := range g.ClusterHeadHistory {
-			delete(g.ClusterHeadHistory, n)
-		}
-	}
-
-	for n := range g.CurrentHeadList {
-		delete(g.CurrentHeadList, n)
 	}
 }
 
@@ -87,24 +68,10 @@ func (g *Graph) Fill(roundNumber int) {
 
 func (g *Graph) IsAdjacent(ivertexSrc vertex.IVertex, ivertexToCompare vertex.IVertex) bool {
 
-	leftNode, okleft := ivertexSrc.(*node.Node)
-	rightNode, okright := ivertexToCompare.(*node.Node)
+	leftNode := ivertexSrc.GetBase()
+	rightNode := ivertexToCompare.GetBase()
 
-	_, isRightNodeHead := g.CurrentHeadList[rightNode]
-	_, isLeftNodeHead := g.CurrentHeadList[leftNode]
-
-	if !okleft {
-		return isRightNodeHead
-	}
-	if !okright {
-		return isLeftNodeHead
-	}
-
-	if isLeftNodeHead && isRightNodeHead {
-		return false
-	}
-
-	return leftNode.Cluster == rightNode.Cluster && (isLeftNodeHead || isRightNodeHead)
+	return math.Sqrt(math.Pow(rightNode.X-leftNode.X, 2)+math.Pow(rightNode.Y-leftNode.Y, 2)) <= math.Max(rightNode.R, leftNode.R)
 }
 
 func (g *Graph) PrintInfo(roundNumber int) {
@@ -154,28 +121,4 @@ func (g *Graph) CheckConnectivity() bool {
 	}
 	fmt.Println(hashset)
 	return false
-}
-
-func (g *Graph) Clasterize() {
-
-	//Определяем к какому кластеру относится
-	//4 кластера, область 0..100. Т.е. по 0.25,
-
-	for k := range g.VertexByCluster {
-		delete(g.VertexByCluster, k)
-	}
-
-	for _, v := range g.Nodes {
-		if v.X < 50 && v.Y < 50 {
-			v.Cluster = 1
-		} else if v.X < 50 && v.Y >= 50 {
-			v.Cluster = 2
-		} else if v.X >= 50 && v.Y < 50 {
-			v.Cluster = 3
-		} else {
-			v.Cluster = 4
-		}
-
-		g.VertexByCluster[v.Cluster] = append(g.VertexByCluster[v.Cluster], v)
-	}
 }
