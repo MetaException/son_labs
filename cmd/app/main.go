@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+
 	var nodeCount int
 	fmt.Print("Введите количество вершин: ")
 	fmt.Scanln(&nodeCount)
