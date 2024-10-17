@@ -64,6 +64,12 @@ func (r render) drawEdge(vertex vertex.IVertex, edges []vertex.IVertex) {
 func (r render) drawVertex(vertex vertex.IVertex) {
 
 	vbase := vertex.GetBase()
+
+	r.gg.SetRGBA(0, 0, 0, 0.5) // Цвет радиуса (черный)
+	r.gg.SetLineWidth(1)
+	r.gg.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, vbase.R*scale)
+	r.gg.Stroke()
+
 	r.gg.DrawCircle(vbase.X*scale+padding, vbase.Y*scale+padding, 5)
 
 	if _, ok := vertex.(*node.Node); ok {
