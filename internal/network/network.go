@@ -80,16 +80,11 @@ func (net *Network) PerformRound(roundNumber int) {
 		}
 
 		recievers := net.graph.VertexMap[sender]
-		if len(recievers) == 0 {
-			continue
-		}
-
-		var count int = sender.FpR
 		for i := range recievers {
-			Flooding(sender, recievers[i], count)
+			Flooding(sender, recievers[i], sender.FpR)
 		}
 
-		sender.DestroyFrames(count)
+		sender.DestroyFrames(sender.FpR)
 		sender.Power--
 		sender.R *= (sender.Power / 100)
 	}
