@@ -84,8 +84,7 @@ func (r render) drawVertex(vertex vertex.IVertex) {
 	r.gg.DrawStringAnchored(vbase.Name, vbase.X*scale+padding, vbase.Y*scale+padding-64/2-16, 0.5, 0.5)
 
 	if node, ok := vertex.(*node.Node); ok {
-		r.gg.DrawStringAnchored(fmt.Sprintf("Cluster: %v", node.Cluster), vbase.X*scale+padding, vbase.Y*scale+padding-64/2, 0.5, 0.5)
-		r.gg.DrawStringAnchored(fmt.Sprintf("Power: %.2f; Frames: %v", node.Power, len(node.Frames)), vbase.X*scale+padding, vbase.Y*scale+padding-64/2+16, 0.5, 0.5)
+		r.gg.DrawStringAnchored(fmt.Sprintf("Power: %.2f; Frames: %v", node.Power, len(node.Frames)), vbase.X*scale+padding, vbase.Y*scale+padding-64/2, 0.5, 0.5)
 	} else {
 		r.gg.DrawStringAnchored(fmt.Sprintf("Frames: %v", len(vbase.Frames)), vbase.X*scale+padding, vbase.Y*scale+padding-64/2, 0.5, 0.5)
 	}

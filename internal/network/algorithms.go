@@ -3,6 +3,7 @@ package network
 import (
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/node"
+	"math"
 )
 
 func Flooding(src *node.Node, dist vertex.IVertex, count int) { // TODO: убрать в другое место??
@@ -30,7 +31,8 @@ func Flooding(src *node.Node, dist vertex.IVertex, count int) { // TODO: убр�
 	//	fmt.Printf("\n%s %v sends %v to %s %v", src.Name, src.Frames, framesToSend, reciever.Name, reciever.Frames)
 
 	if node, ok := dist.(*node.Node); ok {
-		node.Power -= 0.2 * float64(sentCount)
+		node.Power = math.Max(0, node.Power-0.01*float64(sentCount))
+		node.R *= (node.Power / 100)
 	}
 }
 

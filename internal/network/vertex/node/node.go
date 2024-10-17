@@ -15,7 +15,6 @@ type Node struct {
 	FramesIdHistory map[string]int
 	MovingSpeed     float64
 	Power           float64 //percent
-	Cluster         int
 }
 
 func (node Node) String() string {
@@ -26,9 +25,29 @@ func (n *Node) UpdateBase(base *vertex.Vertex) {
 	n.Vertex = *base
 }
 
-func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
+func GenerateRandomNode(name string) *Node {
+	base := vertex.GenerateRandomBase(name)
+	nodeFrameCount := utils.GenerateRandomInt(5, 10)
+	fpr := utils.GenerateRandomInt(1, 5)
+
+	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
+
+	return NewNode(base, fpr, nodeFrameCount)
+}
+
+func GenerateRandomNodeByVertex(name string, source vertex.Vertex) *Node {
+	base := vertex.GenerateRandomBaseByVertex(name, source)
+	nodeFrameCount := utils.GenerateRandomInt(5, 10)
+	fpr := utils.GenerateRandomInt(1, 5)
+
+	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
+
+	return NewNode(base, fpr, nodeFrameCount)
+}
+
+func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
 	node := &Node{
-		Vertex:          *vertex.NewBaseNode(X, Y, R, Name),
+		Vertex:          *vertex,
 		FpR:             FpR,
 		FramesIdHistory: make(map[string]int),
 		MovingSpeed:     5,
@@ -37,7 +56,7 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 
 	for i := range frameCount {
 		frame := &frame.Frame{
-			ParentName: Name,
+			ParentName: vertex.Name,
 			TTL:        100, // Ставить динамически
 			ID:         node.Name + "-" + strconv.Itoa(i),
 		}
@@ -47,15 +66,4 @@ func NewNode(X, Y, R float64, FpR int, Name string, frameCount int) *Node {
 	}
 
 	return node
-}
-
-func (s Node) GenerateRandomVertexByVertex(name string) *Node {
-
-	base := vertex.GenerateRandomBaseNode(name, s.Vertex)
-	nodeFrameCount := utils.GenerateRandomInt(5, 10)
-	fpr := utils.GenerateRandomInt(1, 5)
-
-	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
-
-	return NewNode(base.X, base.Y, base.R, fpr, name, nodeFrameCount)
 }

@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/hub"
 	"lab1/internal/network/vertex/node"
 	"os"
@@ -26,16 +27,17 @@ func NewNetwork(render render, vertexCount int) *Network {
 func (net *Network) Startup(nodeCount int) {
 
 	fmt.Printf("\nСоздание вершин...\n\n")
-	var lastVertex node.Node
-	for i := range nodeCount { // Создаём вершины
-		vertex := lastVertex.GenerateRandomVertexByVertex(strconv.Itoa(i + 1)) // вынести в одну функцию
-		net.graph.AddVertex(vertex)
 
-		lastVertex = *vertex
-	}
-
-	hub := hub.GenerateRandomHubByBaseNode("hub", lastVertex.Vertex)
+	hub := hub.GenerateRandomHub("hub")
 	net.graph.AddVertex(hub)
+
+	var lastVertex vertex.Vertex = hub.Vertex
+	for i := range nodeCount { // Создаём вершины
+		node := node.GenerateRandomNodeByVertex(strconv.Itoa(i+1), lastVertex)
+		net.graph.AddVertex(node)
+
+		lastVertex = node.Vertex
+	}
 
 	fmt.Printf("\nStarting...\n")
 
@@ -86,7 +88,9 @@ func (net *Network) PerformRound(roundNumber int) {
 
 		sender.DestroyFrames(sender.FpR)
 		sender.Power--
-		sender.R *= (sender.Power / 100)
+		if sender.Power < 0 {
+			sender.Power = 0
+		}
 	}
 
 	net.graph.PrintInfo(roundNumber)
