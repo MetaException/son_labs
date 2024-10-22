@@ -1,4 +1,4 @@
-package network
+package netgraph
 
 import (
 	"fmt"
@@ -7,23 +7,6 @@ import (
 	"lab1/internal/network/vertex/node"
 	"math"
 )
-
-type Graph struct {
-	VertexMap  map[vertex.IVertex][]vertex.IVertex // Список смежности
-	VertexList []vertex.IVertex                    // Все вершины графа сети
-
-	Nodes map[string]*node.Node
-	Hubs  map[string]*hub.Hub
-}
-
-func NewGraph(N int) *Graph {
-	return &Graph{
-		VertexMap:  make(map[vertex.IVertex][]vertex.IVertex, N),
-		Nodes:      make(map[string]*node.Node, 0),
-		Hubs:       make(map[string]*hub.Hub),
-		VertexList: make([]vertex.IVertex, 0),
-	}
-}
 
 func (g *Graph) ClearMap() {
 	for i := range g.VertexMap {
@@ -72,14 +55,6 @@ func (g *Graph) IsAdjacent(ivertexSrc vertex.IVertex, ivertexToCompare vertex.IV
 	rightNode := ivertexToCompare.GetBase()
 
 	return math.Sqrt(math.Pow(rightNode.X-leftNode.X, 2)+math.Pow(rightNode.Y-leftNode.Y, 2)) <= math.Max(rightNode.R, leftNode.R)
-}
-
-func (g *Graph) PrintInfo(roundNumber int) {
-	fmt.Println()
-	for _, node := range g.VertexList {
-		base := node.GetBase()
-		fmt.Printf("%v| %s : %v\n", roundNumber, base.Name, base.Frames)
-	}
 }
 
 func (g *Graph) CheckConnectivity() bool {

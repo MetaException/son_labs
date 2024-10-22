@@ -1,10 +1,50 @@
-package network
+package netgraph
 
 import (
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/node"
 	"math"
 )
+
+func (graph *Graph) PerformRound(roundNumber int) {
+
+	graph.ClearMap()
+	graph.Fill(roundNumber)
+
+	if roundNumber == 1 {
+		if check := graph.CheckConnectivity(); !check { // Проверяем граф на связность
+			panic("\nСоздан несвязный граф")
+		}
+	}
+
+	for _, sender := range graph.Nodes {
+
+		if sender.Power <= 0 {
+			continue
+		}
+
+		recievers := graph.VertexMap[sender]
+		for i := range recievers {
+			Flooding(sender, recievers[i], sender.FpR)
+		}
+
+		sender.DestroyFrames(sender.FpR)
+		sender.Power--
+		if sender.Power < 0 {
+			sender.Power = 0
+		}
+	}
+
+	graph.PrintInfo(roundNumber)
+	graph.ClearAllDeadFramesHistory()
+	//graph.PerformMoving()
+}
+
+func (graph *Graph) PerformMoving() {
+	for _, node := range graph.Nodes {
+		node.RandomMove(float64(graph.AreaX), float64(graph.AreaY))
+	}
+}
 
 func Flooding(src *node.Node, dist vertex.IVertex, count int) { // TODO: убрать в другое место??
 

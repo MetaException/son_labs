@@ -1,10 +1,8 @@
 package node
 
 import (
-	"fmt"
 	"lab1/internal/network/frame"
 	"lab1/internal/network/vertex"
-	"lab1/pkg/utils"
 	"strconv"
 )
 
@@ -15,34 +13,12 @@ type Node struct {
 	FramesIdHistory map[string]int
 	MovingSpeed     float64
 	Power           float64 //percent
+	RoutingTable    map[*Node]RoutingData
 }
 
-func (node Node) String() string {
-	return node.Vertex.Name
-}
-
-func (n *Node) UpdateBase(base *vertex.Vertex) {
-	n.Vertex = *base
-}
-
-func GenerateRandomNode(name string) *Node {
-	base := vertex.GenerateRandomBase(name)
-	nodeFrameCount := utils.GenerateRandomInt(5, 10)
-	fpr := utils.GenerateRandomInt(1, 5)
-
-	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
-
-	return NewNode(base, fpr, nodeFrameCount)
-}
-
-func GenerateRandomNodeByVertex(name string, source vertex.Vertex) *Node {
-	base := vertex.GenerateRandomBaseByVertex(name, source)
-	nodeFrameCount := utils.GenerateRandomInt(2, 7)
-	fpr := utils.GenerateRandomInt(1, 5)
-
-	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
-
-	return NewNode(base, fpr, nodeFrameCount)
+type RoutingData struct {
+	pintensity int
+	cost       int
 }
 
 func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
@@ -52,6 +28,7 @@ func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
 		FramesIdHistory: make(map[string]int),
 		MovingSpeed:     5,
 		Power:           100,
+		RoutingTable:    make(map[*Node]RoutingData),
 	}
 
 	for i := range frameCount {
@@ -66,4 +43,12 @@ func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
 	}
 
 	return node
+}
+
+func (node Node) String() string {
+	return node.Vertex.Name
+}
+
+func (n *Node) UpdateBase(base *vertex.Vertex) {
+	n.Vertex = *base
 }

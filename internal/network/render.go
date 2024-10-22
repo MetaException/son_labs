@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"lab1/internal/network/netgraph"
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/node"
 	"path/filepath"
@@ -25,7 +26,7 @@ func NewRender() *render {
 	}
 }
 
-func (r render) DrawGraphImage(name string, graph Graph) {
+func (r render) DrawGraphImage(name string, graph netgraph.Graph) {
 
 	// Заливаем фон белым цветом
 	r.gg.SetRGB(1, 1, 1)
