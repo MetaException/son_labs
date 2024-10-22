@@ -9,7 +9,7 @@ import (
 type Vertex struct {
 	X, Y, R         float64
 	Name            string
-	Frames          []*frame.Frame // Сделать лимит??
+	Frames          []*frame.Frame
 	FramesIdHistory map[string]int
 }
 
