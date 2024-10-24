@@ -8,7 +8,7 @@ import (
 func GenerateRandomBase(name string) *Vertex {
 	x := float64(utils.GenerateRandomInt(0, 100))
 	y := float64(utils.GenerateRandomInt(0, 100))
-	r := float64(utils.GenerateRandomInt(5, 50))
+	r := float64(utils.GenerateRandomInt(5, 30))
 
 	return NewBaseNode(float64(int(x)), float64(int(y)), r, name)
 }

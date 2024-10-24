@@ -8,8 +8,8 @@ import (
 
 func GenerateRandomNode(name string) *Node {
 	base := vertex.GenerateRandomBase(name)
-	nodeFrameCount := utils.GenerateRandomInt(5, 10)
-	fpr := utils.GenerateRandomInt(1, 5)
+	nodeFrameCount := utils.GenerateRandomInt(20, 60)
+	fpr := utils.GenerateRandomInt(1, 3)
 
 	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
 
@@ -18,7 +18,7 @@ func GenerateRandomNode(name string) *Node {
 
 func GenerateRandomNodeByVertex(name string, source vertex.Vertex) *Node {
 	base := vertex.GenerateRandomBaseByVertex(name, source)
-	nodeFrameCount := utils.GenerateRandomInt(2, 7)
+	nodeFrameCount := utils.GenerateRandomInt(20, 60)
 	fpr := utils.GenerateRandomInt(1, 5)
 
 	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)

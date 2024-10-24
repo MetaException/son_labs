@@ -34,6 +34,11 @@ func (net *Network) Startup(nodeCount int) {
 	os.Mkdir("history", 0755)
 
 	net.graph.Fill(0)
+
+	if check := net.graph.CheckConnectivity(); !check { // Проверяем граф на связность
+		panic("\nСоздан несвязный граф")
+	}
+
 	net.graph.PrintInfo(0)
 	net.render.DrawGraphImage("0", *net.graph)
 
@@ -44,7 +49,8 @@ func (net *Network) PerformRounds() {
 	i := 1
 	for !net.graph.CheckAllPoweroff() && !net.graph.CheckFinished() {
 
-		net.graph.PerformRound(i)
+		net.graph.PerformRounds(i)
+		net.graph.PerformMoving()
 
 		net.render.DrawGraphImage(strconv.Itoa(i), *net.graph)
 

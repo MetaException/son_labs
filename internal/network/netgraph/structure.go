@@ -14,6 +14,12 @@ func (g *Graph) ClearMap() {
 	}
 }
 
+func (g *Graph) ClearRouteMap() {
+	for i := range g.RouteMap {
+		delete(g.RouteMap, i)
+	}
+}
+
 func (g *Graph) AddVertex(vertexToAdd vertex.IVertex) {
 	if _, ok := g.VertexMap[vertexToAdd]; !ok {
 		g.VertexMap[vertexToAdd] = make([]vertex.IVertex, 0)
