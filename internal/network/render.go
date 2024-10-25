@@ -51,8 +51,6 @@ func (r render) drawRoutes(graph map[vertex.IVertex]map[vertex.IVertex]*netgraph
 func (r render) drawRoute(vertex vertex.IVertex, edges map[vertex.IVertex]*netgraph.RoutingData) {
 	baseVertex := vertex.GetBase()
 	r.gg.SetLineWidth(3.0)
-	fmt.Println()
-	fmt.Print(vertex, " ")
 
 	maxVal := 0.0
 	for _, edge := range edges {

@@ -22,15 +22,11 @@ func (graph *Graph) PerformRounds(roundNumber int) {
 	graph.Fill(roundNumber)
 
 	for _, nod := range graph.Nodes {
-		//fmt.Println("Введите имя вершины")
-		//var ts string
-		//fmt.Scanln(&ts)
 
-		//nod := graph.Nodes[ts]            // Начальный узел
 		neighbors := graph.VertexMap[nod] // Его соседи
 
 		if nod.Power <= 0 {
-			break
+			continue
 		}
 
 		bestAntPath := make(map[*node.Node][]hel, 0) // Лучшие пути муравьёв
@@ -41,9 +37,9 @@ func (graph *Graph) PerformRounds(roundNumber int) {
 
 		for antIndex := 0; antIndex < antsCount; antIndex++ {
 
-			agentHistory := make([]hel, 0)                       // История пути муравья
-			agentHistoryMap := make(map[*vertex.Vertex]struct{}) // История посещённых узлов для исключения повторений
-			agentHistoryMap[&nod.Vertex] = struct{}{}
+			agentHistory := make([]hel, 0)               // История пути муравья
+			agentHistoryMap := make(map[string]struct{}) // История посещённых узлов для исключения повторений
+			agentHistoryMap[nod.Name] = struct{}{}
 
 			fmt.Println("\n------")
 			fmt.Printf("Ход муравья... Узел: %v | Соседи: %v\n", nod.Name, neighbors)
@@ -70,7 +66,7 @@ func (graph *Graph) PerformRounds(roundNumber int) {
 					src: currNode,
 					n:   choosedOne,
 				}) // Добавляем в историю выбранный узел
-				agentHistoryMap[choosedOne.GetBase()] = struct{}{} // Добавляем в историю посещённых узлов
+				agentHistoryMap[choosedOne.GetBase().Name] = struct{}{} // Добавляем в историю посещённых узлов
 
 				fmt.Printf("Выбран сосед: %v | История соседей: %v\n", choosedOne, agentHistory)
 
@@ -127,44 +123,44 @@ func (graph *Graph) clPh() {
 	}
 }
 
-func (graph *Graph) chooseNeighbor(currNode *node.Node, potentialNeighbors []vertex.IVertex, agentHistoryMap map[*vertex.Vertex]struct{}) (vertex.IVertex, error) {
+func (graph *Graph) chooseNeighbor(currNode *node.Node, potentialNeighbors []vertex.IVertex, agentHistoryMap map[string]struct{}) (vertex.IVertex, error) {
 
-	neighbors := make([]vertex.IVertex, 0)
+	totalPheromones := 0.0 // Общее число феромонов
+	alpha := 1.0           // Коэффициент усиления влияния феромонов
+
+	neighbors := make([]*node.Node, 0)
 	for _, neighbor := range potentialNeighbors {
-		if _, ok := agentHistoryMap[neighbor.GetBase()]; !ok {
-			neighbors = append(neighbors, neighbor)
+		if _, ok := agentHistoryMap[neighbor.GetBase().Name]; !ok {
+
+			var RD *RoutingData
+
+			// Формируем карту феромонов
+			if rd, isExist := graph.RouteMap[currNode][neighbor]; !isExist {
+				RD = &RoutingData{
+					Cost:       0.0,
+					Pintensity: 0.0,
+				}
+				graph.RouteMap[currNode][neighbor] = RD
+				if _, ok := graph.RouteMap[neighbor]; !ok {
+					graph.RouteMap[neighbor] = make(map[vertex.IVertex]*RoutingData)
+				}
+				graph.RouteMap[neighbor][currNode] = RD
+				graph.RouteList = append(graph.RouteList, RD)
+			} else {
+				RD = rd
+			}
+
+			if hub, isHub := graph.Hubs[neighbor.GetBase().Name]; isHub {
+				return hub, nil
+			} else if node, isNode := graph.Nodes[neighbor.GetBase().Name]; isNode { // Значит это нод
+				totalPheromones += math.Pow(RD.Pintensity, alpha) / (RD.Cost + 1) // Рассчитываем сумму феромонов для всех соседей
+				neighbors = append(neighbors, node)
+			}
 		}
 	}
 
 	if len(neighbors) == 0 {
 		return nil, errors.New("нет доступных кандидатов")
-	}
-
-	totalPheromones := 0.0
-	alpha := 1.0 // Коэффициент усиления влияния феромонов
-
-	// Рассчитываем сумму феромонов для всех соседей
-	for _, neighbor := range neighbors {
-
-		rd, ok := graph.RouteMap[currNode][neighbor]
-
-		if !ok {
-			newRD := &RoutingData{
-				Cost:       0.0,
-				Pintensity: 0.0,
-			}
-			graph.RouteMap[currNode][neighbor] = newRD
-			if _, ok := graph.RouteMap[neighbor]; !ok {
-				graph.RouteMap[neighbor] = make(map[vertex.IVertex]*RoutingData)
-			}
-			graph.RouteMap[neighbor][currNode] = newRD
-			graph.RouteList = append(graph.RouteList, newRD)
-			rd = newRD
-		}
-
-		ph := rd.Pintensity
-		cost := rd.Cost
-		totalPheromones += math.Pow(ph, alpha) / (cost + 1)
 	}
 
 	// Порог для активации детерминированного выбора
@@ -178,20 +174,12 @@ func (graph *Graph) chooseNeighbor(currNode *node.Node, potentialNeighbors []ver
 
 		for _, neighbor := range neighbors {
 
-			if _, isHub := neighbor.(*hub.Hub); isHub {
-				return neighbor, nil
+			if neighbor.Power <= 0 {
+				continue
 			}
 
-			if node, ok := neighbor.(*node.Node); ok { // Если узел уже сел, то пропускаем
-				if node.Power <= 0 {
-					continue
-				}
-			}
 			rd := graph.RouteMap[currNode][neighbor]
-
-			pheromoneLevel := rd.Pintensity
-			cost := rd.Cost
-			probability := (math.Pow(pheromoneLevel, alpha) / (cost + 1)) / totalPheromones
+			probability := (math.Pow(rd.Pintensity, alpha) / (rd.Cost + 1)) / totalPheromones
 			cumulativeProbability += probability
 
 			if randValue < cumulativeProbability {
@@ -237,8 +225,6 @@ func Flooding(src *node.Node, dist vertex.IVertex, count int) { // TODO: убр�
 			}
 		}
 	}
-
-	//	fmt.Printf("\n%s %v sends %v to %s %v", src.Name, src.Frames, framesToSend, reciever.Name, reciever.Frames)
 
 	src.Power = math.Max(0, src.Power-0.01*float64(sentCount))
 	src.R *= 1 - (src.Power/100)/500
