@@ -15,6 +15,8 @@ type Vertex struct {
 	Name            string
 	Frames          []*frame.Frame
 	FramesIdHistory map[string]int
+	Pintensity      float64 // феромоны
+	Cost            float64 // hops
 }
 
 func NewBaseNode(X, Y, R float64, Name string) *Vertex {

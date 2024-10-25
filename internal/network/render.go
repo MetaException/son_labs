@@ -5,6 +5,7 @@ import (
 	"lab1/internal/network/netgraph"
 	"lab1/internal/network/vertex"
 	"lab1/internal/network/vertex/node"
+	"math"
 	"path/filepath"
 
 	"github.com/fogleman/gg"
@@ -34,7 +35,7 @@ func (r render) DrawGraphImage(name string, graph netgraph.Graph) {
 
 	r.drawVertexes(graph.VertexList)
 	r.drawEdges(graph.VertexMap)
-	r.drawRoutes(graph.RouteMap)
+	r.drawRoutes(graph.VertexMap)
 
 	err := r.gg.SavePNG(filepath.Join("history", name+".png"))
 	if err != nil {
@@ -42,30 +43,34 @@ func (r render) DrawGraphImage(name string, graph netgraph.Graph) {
 	}
 }
 
-func (r render) drawRoutes(graph map[vertex.IVertex]map[vertex.IVertex]*netgraph.RoutingData) {
+func (r render) drawRoutes(graph map[vertex.IVertex][]vertex.IVertex) {
 	for vertex, edges := range graph {
 		r.drawRoute(vertex, edges)
 	}
 }
 
-func (r render) drawRoute(vertex vertex.IVertex, edges map[vertex.IVertex]*netgraph.RoutingData) {
+// Проверять если у хаба нет соседей то прекращаем вообще поиск
+
+func (r render) drawRoute(vertex vertex.IVertex, edges []vertex.IVertex) {
 	baseVertex := vertex.GetBase()
-	r.gg.SetLineWidth(3.0)
+	r.gg.SetLineWidth(2.5)
 
 	maxVal := 0.0
+	minVal := math.MaxFloat64
 	for _, edge := range edges {
-		if edge.Pintensity > float64(maxVal) {
-			maxVal = edge.Pintensity
+		base := edge.GetBase()
+		if base.Pintensity > float64(maxVal) {
+			maxVal = base.Pintensity
+		}
+		if base.Pintensity < float64(minVal) {
+			minVal = base.Pintensity
 		}
 	}
 
-	for v, edge := range edges {
-		color := edge.Pintensity
-		if edge.Pintensity > 1 {
-			color = edge.Pintensity / maxVal
-		}
+	for _, edge := range edges {
+		baseEdge := edge.GetBase()
+		color := math.Pow((baseEdge.Pintensity-minVal)/(math.Log(maxVal-minVal)), 1)
 		r.gg.SetRGBA(1, 0, 0, color) // TODO нормализовать значения
-		baseEdge := v.GetBase()
 		r.gg.DrawLine(baseVertex.X*scale+padding, baseVertex.Y*scale+padding, baseEdge.X*scale+padding, baseEdge.Y*scale+padding)
 		r.gg.Stroke()
 	}

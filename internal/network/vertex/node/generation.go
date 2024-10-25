@@ -9,7 +9,7 @@ import (
 func GenerateRandomNode(name string) *Node {
 	base := vertex.GenerateRandomBase(name)
 	nodeFrameCount := utils.GenerateRandomInt(20, 60)
-	fpr := utils.GenerateRandomInt(1, 3)
+	fpr := utils.GenerateRandomInt(1, 2)
 
 	fmt.Printf("New vertex [%s] : X: %v, Y: %v, R: %v, FC: %v\n", name, base.X, base.Y, base.R, nodeFrameCount)
 

@@ -12,8 +12,8 @@ type Graph struct {
 	VertexMap  map[vertex.IVertex][]vertex.IVertex // Список смежности
 	VertexList []vertex.IVertex                    // Все вершины графа сети
 
-	RouteMap  map[vertex.IVertex]map[vertex.IVertex]*RoutingData
-	RouteList []*RoutingData
+	//RouteMap map[vertex.IVertex]map[vertex.IVertex]*RoutingData
+	//RouteList []*RoutingData
 
 	Nodes map[string]*node.Node
 	Hubs  map[string]*hub.Hub
@@ -32,10 +32,10 @@ func NewGraph(N, areaX, areaY int) *Graph {
 		Nodes:      make(map[string]*node.Node, 0),
 		Hubs:       make(map[string]*hub.Hub),
 		VertexList: make([]vertex.IVertex, 0),
-		RouteMap:   make(map[vertex.IVertex]map[vertex.IVertex]*RoutingData),
-		RouteList:  make([]*RoutingData, 0),
-		AreaX:      areaX,
-		AreaY:      areaY,
+		//RouteMap:   make(map[vertex.IVertex]map[vertex.IVertex]*RoutingData),
+		//RouteList:  make([]*RoutingData, 0),
+		AreaX: areaX,
+		AreaY: areaY,
 	}
 }
 

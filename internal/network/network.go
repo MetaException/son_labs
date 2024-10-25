@@ -50,9 +50,10 @@ func (net *Network) PerformRounds() {
 	for !net.graph.CheckAllPoweroff() && !net.graph.CheckFinished() {
 
 		net.graph.PerformRounds(i)
-		net.graph.PerformMoving()
 
 		net.render.DrawGraphImage(strconv.Itoa(i), *net.graph)
+
+		net.graph.PerformMoving()
 
 		i++
 	}

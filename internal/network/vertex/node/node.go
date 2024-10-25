@@ -13,13 +13,6 @@ type Node struct {
 	FramesIdHistory map[string]int
 	MovingSpeed     float64
 	Power           float64 //percent
-	RoutingTable    map[*Node]RoutingData
-	BestAntPath     []*Node
-}
-
-type RoutingData struct {
-	Pintensity float64
-	Cost       int
 }
 
 func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
@@ -29,7 +22,6 @@ func NewNode(vertex *vertex.Vertex, FpR int, frameCount int) *Node {
 		FramesIdHistory: make(map[string]int),
 		MovingSpeed:     3,
 		Power:           100,
-		RoutingTable:    make(map[*Node]RoutingData),
 	}
 
 	for i := range frameCount {
