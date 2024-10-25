@@ -69,7 +69,7 @@ func (r render) drawRoute(vertex vertex.IVertex, edges []vertex.IVertex) {
 
 	for _, edge := range edges {
 		baseEdge := edge.GetBase()
-		color := math.Pow((baseEdge.Pintensity-minVal)/(math.Log(maxVal-minVal)), 1)
+		color := math.Pow((baseEdge.Pintensity-0)/(math.Log(maxVal-0)), 1)
 		r.gg.SetRGBA(1, 0, 0, color) // TODO нормализовать значения
 		r.gg.DrawLine(baseVertex.X*scale+padding, baseVertex.Y*scale+padding, baseEdge.X*scale+padding, baseEdge.Y*scale+padding)
 		r.gg.Stroke()

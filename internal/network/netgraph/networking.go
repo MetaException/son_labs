@@ -8,6 +8,7 @@ import (
 	"lab1/internal/network/vertex/node"
 	"math"
 	"math/rand"
+	"slices"
 )
 
 func (graph *Graph) PerformRounds(roundNumber int) {
@@ -87,15 +88,9 @@ func (graph *Graph) PerformRounds(roundNumber int) {
 
 		fmt.Println("Обновляем феромоны...")
 		// Добавляем феромоны на пути, по которому прошёл лучший муравей
-		for _, v := range bestAntPath {
-			for i := len(v) - 1; i >= 0; i-- {
-				/* // Если что-то не будет работать!!!!
-				if v[i].node.GetBase().Name != graph.VertexMap[v[i].src][v[i].idx].GetBase().Name {
-					panic("rgj")
-				}
-				*/
-				rd := v[i].node
-				base := rd.GetBase()
+		for _, bestPath := range bestAntPath {
+			for _, pathNode := range slices.Backward(bestPath) {
+				base := pathNode.node.GetBase()
 				base.Pintensity += (1-0.2)*base.Pintensity + (1.0 / float64(bestAntCost))
 				base.Cost = float64(bestAntCost)
 			}
@@ -131,7 +126,6 @@ func (graph *Graph) clPh() {
 type pNeighbor struct {
 	node vertex.IVertex
 	src  *node.Node
-	idx  int
 }
 
 // !!!! Пропускаются соседи с зарядом 0
@@ -139,24 +133,22 @@ type pNeighbor struct {
 func (graph *Graph) chooseNeighbor(currNode *node.Node, potentialNeighbors []vertex.IVertex, agentHistoryMap map[string]struct{}) (*pNeighbor, error) {
 
 	totalPheromones := 0.0 // Общее число феромонов
-	alpha := 1.1           // Коэффициент усиления влияния феромонов
+	alpha := 1.0           // Коэффициент усиления влияния феромонов
 
 	neighbors := make([]*pNeighbor, 0)
-	for i, neighbor := range potentialNeighbors {
+	for _, neighbor := range potentialNeighbors {
 		base := neighbor.GetBase()
 		if _, ok := agentHistoryMap[base.Name]; !ok {
 			if hub, isHub := graph.Hubs[base.Name]; isHub {
 				return &pNeighbor{
 					src:  currNode,
 					node: hub,
-					idx:  i,
 				}, nil
 			} else if node, isNode := graph.Nodes[base.Name]; isNode && node.Power > 0 {
 				totalPheromones += math.Pow(base.Pintensity, alpha) / (base.Cost + 1) // Рассчитываем сумму феромонов для всех соседей
 				neighbors = append(neighbors, &pNeighbor{
 					src:  currNode,
 					node: node,
-					idx:  i,
 				})
 			}
 		}
@@ -177,8 +169,7 @@ func (graph *Graph) chooseNeighbor(currNode *node.Node, potentialNeighbors []ver
 
 		for _, neighbor := range neighbors {
 
-			rd := graph.VertexMap[currNode][neighbor.idx]
-			base := rd.GetBase()
+			base := neighbor.node.GetBase()
 			probability := (math.Pow(base.Pintensity, alpha) / (base.Cost + 1)) / totalPheromones
 			cumulativeProbability += probability
 
