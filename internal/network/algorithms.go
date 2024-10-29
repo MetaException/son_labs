@@ -67,9 +67,6 @@ func (graph *Graph) CalculateTn(r int) {
 			graph.CurrentHeadList[v[0]] = struct{}{}
 		} else {
 			// Если ни один не попал, то выбираем первый попавшийся для конкретного кластера
-			//fmt.Println("hello")
-			//fmt.Println(graph.VertexByCluster)
-
 			isFound := graph.pickupRandomNode(k)
 
 			// Если уже прям все узлы были хотябы раз, то берём первый в списке
